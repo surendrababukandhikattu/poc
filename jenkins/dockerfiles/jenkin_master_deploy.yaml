@@ -1,0 +1,45 @@
+apiVersion: "v1"
+kind: "List"
+items:
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: jenkins-master-deployment
+  spec:
+    replicas: 1
+    selector:
+        matchLabels:
+          app: jenkins-master
+    template:
+      metadata:
+        labels:
+          app: jenkins-master
+      spec:
+        containers:
+          - name: jenkins-master
+            image: damu/jenkins-master:version1.0
+            ports:
+              - name: http-port
+                containerPort: 8080
+              - name: jnlp-port
+                containerPort: 50000
+        volumeMounts:
+             - mountPath: /var/jenkins_home
+               name: jenkins
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: jenkins-master-service
+    labels:
+      app: jenkins-master
+  spec:
+    type: NodePort
+    ports:
+    - name: "http"
+      port: 8080
+      targetPort: 8080
+    - name: "jnlp"
+      port: 50000
+      targetPort: 50000
+    selector:
+      app: jenkins-master
